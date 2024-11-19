@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "npm install --prefix client && npm run build --prefix client"
+    "build": "npm install --prefix client && npm run build --prefix client",
+    "install:server": "npm install", 
+    "install:client": "npm install --prefix client"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -28,5 +30,8 @@
     "@types/jest": "^29.5.14",
     "nodemon": "^3.1.7"
   },
-  "description": ""
+  "description": "",
+  "engines": {
+    "node": ">=16.x"
+  }
 }
