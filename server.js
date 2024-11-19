@@ -9,18 +9,22 @@ require("dotenv").config(); // Load environment variables from a .env file
 // Initialize Express
 const app = express();
 
-// Allow requests from the frontend (development and production)
+// CORS Configuration
 const corsOptions = {
   origin: [
     "http://localhost:3000",  // Local development
     "https://splitter-8fih.onrender.com",  // Production frontend
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS method for preflight requests
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
+  credentials: true, // Allow cookies and credentials
 };
+
+// Use CORS middleware
 app.use(cors(corsOptions));
 
+// Middleware to handle preflight OPTIONS request
+app.options("*", cors(corsOptions));
 
 // Middleware
 app.use(express.json()); // Parse JSON requests
@@ -35,7 +39,8 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret"; // Default value for development
+const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret"; // Default JWT secret
+
 
 // Schemas & Models
 const userSchema = new mongoose.Schema({
