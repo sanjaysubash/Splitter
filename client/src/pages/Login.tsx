@@ -21,12 +21,16 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const apiUrl = process.env.NODE_ENV === "production"
+    ? "https://splitter-8fih.onrender.com" // Use production backend URL
+    : "http://localhost:5001"; // Use local backend URL for development
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true); // Start loading state
     try {
-      const { data } = await axios.post("http://localhost:5001/api/auth/login", {
+      const { data } = await axios.post(`${apiUrl}/api/auth/login`, {
         email,
         password,
       });
