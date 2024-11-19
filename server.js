@@ -9,9 +9,9 @@ require("dotenv").config(); // Load environment variables from a .env file
 // Initialize Express
 const app = express();
 
-// Allow requests from the frontend
+// Allow requests from the frontend (development and production)
 const corsOptions = {
-  origin: "http://localhost:5001", // Allow only this frontend origin
+  origin: ["http://localhost:3000", "http://localhost:5001"], // Allow both local and production frontends
   methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
   credentials: true, // Allow cookies and credentials
@@ -24,7 +24,8 @@ app.use(express.json()); // Parse JSON requests
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
- 
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
@@ -201,9 +202,9 @@ app.get("/api/places", (req, res) => {
 
 // Serve Frontend (Production)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client/build")));
+  app.use(express.static(path.join(__dirname, "client", "build")));
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
