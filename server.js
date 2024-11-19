@@ -11,12 +11,16 @@ const app = express();
 
 // Allow requests from the frontend (development and production)
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:5001"], // Allow both local and production frontends
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
-  credentials: true, // Allow cookies and credentials
+  origin: [
+    "http://localhost:3000",  // Local development
+    "https://splitter-8fih.onrender.com",  // Production frontend
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 app.use(cors(corsOptions));
+
 
 // Middleware
 app.use(express.json()); // Parse JSON requests
