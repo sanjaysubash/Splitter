@@ -209,7 +209,6 @@ app.get("/api/places", (req, res) => {
   res.json(JSON.parse(places));
 });
 
-// Serve Frontend (Production)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));
   app.get("*", (req, res) => {
@@ -221,6 +220,5 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Start Server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`))
