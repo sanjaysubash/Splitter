@@ -31,14 +31,14 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
+const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret"; // Default value for development
 
 // Schemas & Models
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  avatar: { type: String, default: "" },
+  avatar: { type: String, default: "" }, // Optional field for profile images
 });
 const User = mongoose.model("User", userSchema);
 
