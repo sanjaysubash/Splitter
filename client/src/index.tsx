@@ -4,7 +4,6 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import "./index.css";
 import App from "./App";
 import theme from "./styles/theme";
-import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -20,5 +19,3 @@ root.render(
   </React.StrictMode>
 );
 
-// Measure performance (optional)
-reportWebVitals();
