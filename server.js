@@ -12,16 +12,14 @@ const app = express();
 // CORS Configuration
 const corsOptions = {
   origin: [
-    "http://localhost:3000",  // Local development
-    "https://splitter-8fih.onrender.com",  // Production frontend
+    "http://localhost:3000", // Development frontend
+    "https://splitter-8fih.onrender.com", // Production frontend
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS method for preflight requests
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Make sure OPTIONS is allowed
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true, // Allow cookies and credentials
+  credentials: true,
 };
-
-// Use CORS middleware
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Enable CORS for the specified origins
 
 // Middleware to handle preflight OPTIONS request
 app.options("*", cors(corsOptions));
