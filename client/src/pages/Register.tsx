@@ -11,23 +11,60 @@ import {
 } from "@mui/material";
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState(""); // State for the name field
+  const [email, setEmail] = useState(""); // State for the email field
+  const [password, setPassword] = useState(""); // State for the password field
   const navigate = useNavigate();
 
+  // Form submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Simple frontend validation
+    if (!name || !email || !password) {
+      alert("All fields are required.");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:5001/api/auth/register", {
-        name,
-        email,
-        password,
-      });
+      // Making a POST request to the server
+      const response = await axios.post(
+        "http://localhost:5001/api/auth/register",
+        {
+          name,
+          email,
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Success feedback
       alert("Registration successful!");
+      console.log("Server response:", response.data);
+
+      // Navigate to the login page
       navigate("/");
     } catch (err) {
-      alert("Registration failed. Please try again.");
+      // Error handling with backend feedback
+      if (axios.isAxiosError(err) && err.response) {
+        console.error("Error:", err.response.data);
+        alert(err.response.data.message || "Registration failed.");
+      } else {
+        console.error("Unexpected error:", err);
+        alert("An unexpected error occurred.");
+      }
     }
   };
 
