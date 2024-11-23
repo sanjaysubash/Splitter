@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "react-scripts start",
+    "start": "node server.js",
     "build": "npm install --prefix client && npm run build --prefix client --verbose",
     "install:server": "npm install",
     "install:client": "npm install --prefix client"
