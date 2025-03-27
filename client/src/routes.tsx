@@ -9,7 +9,7 @@ import Upload from "./pages/Upload";
 import Community from "./pages/Community";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
-import Logout from "./pages/Logout";
+import Logout from "./pages/Login_";
 import Analytics from "./pages/Analytics";
 
 const AppRoutes = () => (

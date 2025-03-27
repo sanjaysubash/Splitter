@@ -2,18 +2,19 @@ import React, { ReactNode } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Box, AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import IndexHome from "./pages/indexhome";  // <-- Default landing page
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
 import ExpenseSplitter from "./pages/ExpenseSplitter";
 import GroupManagement from "./pages/GroupManagement";
 import Upload from "./pages/Upload";
 import Community from "./pages/Community";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
-import Logout from "./pages/Logout";
+import Logout from "./pages/Login_";
 import Analytics from "./pages/Analytics";
+import Profile from "./pages/Profile";
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh", // Full height for consistent layout
+        minHeight: "100vh",
         backgroundColor: "#f9f9f9",
       }}
     >
@@ -46,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               flexGrow: 1,
             }}
           >
-            Travel App
+            Travelogram
           </Typography>
           <Box
             sx={{
@@ -80,17 +81,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Button color="inherit" component={Link} to="/about">
               About
             </Button>
-            <Button color="inherit" component={Link} to="/logout">
-              Logout
+            <Button color="inherit" component={Link} to="/login">
+              Login
             </Button>
           </Box>
         </Toolbar>
       </AppBar>
       <Box
         sx={{
-          flex: 1, // Expands to occupy available vertical space
+          flex: 1,
           padding: { xs: 2, sm: 3 },
-          overflow: "auto", // Enables scrolling for content overflow
+          overflow: "auto",
           maxWidth: "1200px",
           margin: "auto",
           width: "100%",
@@ -107,8 +108,11 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        {/* Default Route to IndexHome */}
+        <Route path="/" element={<IndexHome />} />  
+
         {/* Public Routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* Routes with Header Layout */}

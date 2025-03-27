@@ -30,7 +30,7 @@ const Navbar = () => {
           }}
           onClick={() => navigate("/home")}
         >
-          Travel App
+          Travelogram
         </Typography>
 
         {/* Navigation Links */}

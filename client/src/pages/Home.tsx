@@ -42,19 +42,12 @@ const Home = () => {
         <Toolbar>
           <Typography
             variant="h6"
-            sx={{ flexGrow: 1, fontWeight: "bold", letterSpacing: "0.1em" }}
-          >
-            Travel & News
-          </Typography>
-          <Button color="inherit" component={Link} to="/">
-            Home
-          </Button>
-          <Button color="inherit" component={Link} to="/about">
-            About
-          </Button>
-          <Button color="inherit" component={Link} to="/contact">
-            Contact
-          </Button>
+            sx={{ flexGrow: 1, fontWeight: "bold", letterSpacing: "0.1em" , textAlign: "center",color:"edae49"
+            }}
+          >"Mark it. Move it. Make it happen!"
+
+                      </Typography>
+         
         </Toolbar>
       </AppBar>
 
