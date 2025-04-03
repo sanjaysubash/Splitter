@@ -1,12 +1,16 @@
 :root {
   /* Theme Variables */
   --background-color: #f5f5f5;
-  --primary-color: #1976d2; /* Matching Material-UI default primary color */
+  --primary-color: #1976d2;
   --secondary-color: #ff5722;
   --text-color: #333;
   --header-background-color: #282c34;
   --header-text-color: white;
   --link-color: #61dafb;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+  --transition: all 0.3s ease-in-out;
 }
 
 [data-theme="dark"] {
@@ -15,54 +19,36 @@
   --header-background-color: #1e1e1e;
   --header-text-color: white;
   --link-color: #90caf9;
+  --card-bg: rgba(30, 30, 30, 0.8);
+  --card-shadow: rgba(255, 255, 255, 0.1);
 }
 
 body {
   margin: 0;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-  background-color: var(--background-color);
+  background: var(--background-color);
   color: var(--text-color);
-  line-height: 1.5;
+  line-height: 1.6;
+  transition: var(--transition);
 }
 
+/* Smooth Dark Mode Transition */
+html {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* App Container */
 .App {
   text-align: center;
+  padding: 20px;
 }
 
+/* Logo Animation */
 .App-logo {
   height: 30vmin;
   pointer-events: none;
   margin: 20px 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 10s cubic-bezier(0.4, 0.0, 0.2, 1);
-  }
-}
-
-.App-header {
-  background-color: var(--header-background-color);
-  min-height: 20vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--header-text-color);
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.App-link {
-  color: var(--link-color);
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-.App-link:hover {
-  color: var(--secondary-color);
+  animation: App-logo-spin infinite 8s linear;
 }
 
 @keyframes App-logo-spin {
@@ -74,27 +60,39 @@ body {
   }
 }
 
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: 1rem;
+/* Header */
+.App-header {
+  background: var(--header-background-color);
+  min-height: 20vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--header-text-color);
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: var(--transition);
 }
 
 /* Navbar */
 .Navbar {
-  background-color: var(--primary-color);
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
   color: white;
-  padding: 10px 20px;
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 10px var(--card-shadow);
 }
 
 .Navbar a {
   color: white;
-  margin: 0 10px;
+  margin: 0 12px;
   text-decoration: none;
   font-weight: 500;
+  position: relative;
   transition: color 0.3s;
 }
 
@@ -102,57 +100,78 @@ button, input, select, textarea {
   color: var(--secondary-color);
 }
 
+/* Navbar Underline Effect */
+.Navbar a::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 0;
+  background: var(--secondary-color);
+  transition: width 0.3s ease;
+}
+
+.Navbar a:hover::after {
+  width: 100%;
+}
+
 /* Buttons */
 button {
-  background-color: var(--primary-color);
+  background: var(--primary-color);
   color: white;
   border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: var(--transition);
+  box-shadow: 0 4px 8px var(--card-shadow);
 }
 
 button:hover {
-  background-color: var(--secondary-color);
+  background: var(--secondary-color);
+  transform: scale(1.05);
 }
 
 /* Cards */
 .Card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin: 20px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 6px 15px var(--card-shadow);
   padding: 20px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 20px;
+  transition: var(--transition);
+  backdrop-filter: blur(12px);
 }
 
 .Card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px var(--card-shadow);
 }
 
 /* Form */
 .Form {
-  background-color: white;
+  background: var(--card-bg);
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: 0 6px 15px var(--card-shadow);
+  transition: var(--transition);
 }
 
 .Form input, .Form textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  transition: border 0.3s ease-in-out;
 }
 
-.Form button {
-  width: 100%;
+.Form input:focus, .Form textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
 }
 
-/* Grid Layout */
+/* Responsive Grid */
 .Grid {
   display: grid;
   gap: 20px;
@@ -172,15 +191,43 @@ button:hover {
   }
 }
 
+/* Floating Action Button */
+.FAB {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--primary-color);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px var(--card-shadow);
+  transition: var(--transition);
+}
+
+.FAB:hover {
+  background: var(--secondary-color);
+  transform: scale(1.1);
+}
+
 /* Responsive Typography */
 h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
 }
 
 h1 {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
 h2 {
-  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 3vw, 2rem);
 }

@@ -6,12 +6,8 @@ import {
   Button,
   Avatar,
   Grid,
-  Card,
-  CardContent,
-  IconButton,
   Paper,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 
 const Profile = () => {
@@ -22,32 +18,38 @@ const Profile = () => {
     dob: "",
     bio: "",
   });
+
   const [editMode, setEditMode] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Fetch user data from the backend
+  const fetchUser = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5001/api/users/profile", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setUser(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   useEffect(() => {
-    // Fetch user details from API
-    const fetchUser = async () => {
-      try {
-        const { data } = await axios.get("http://localhost:5001/api/users/profile", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        setUser(data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
     fetchUser();
   }, []);
 
+  // ✅ Handle profile update and save it to the DB
   const handleUpdate = async () => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("name", user.name);
       formData.append("dob", user.dob);
       formData.append("bio", user.bio);
+
       if (selectedAvatar) {
-        formData.append("avatar", selectedAvatar);
+        formData.append("avatar", selectedAvatar);  // Add image if updated
       }
 
       await axios.put("http://localhost:5001/api/users/profile", formData, {
@@ -58,10 +60,15 @@ const Profile = () => {
       });
 
       alert("Profile updated successfully!");
+
+      // ✅ Re-fetch the updated user data
+      fetchUser();
       setEditMode(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,9 +186,10 @@ const Profile = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleUpdate}
+                disabled={loading}
                 sx={{ borderRadius: 2 }}
               >
-                Save
+                {loading ? "Saving..." : "Save"}
               </Button>
               <Button
                 variant="outlined"

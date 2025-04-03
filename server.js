@@ -1,49 +1,67 @@
-const express = require("express"); // Express framework for building APIs
-const mongoose = require("mongoose"); // Mongoose for MongoDB connection and schemas
-const cors = require("cors"); // CORS middleware for cross-origin requests
-const bcrypt = require("bcrypt"); // Bcrypt for password hashing
-const jwt = require("jsonwebtoken"); // JWT for authentication
-const path = require("path"); // Node.js path module
-require("dotenv").config(); // Load environment variables from a .env file
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
+require("dotenv").config();
 
-// Initialize Express
 const app = express();
 
-// CORS Configuration
+// ✅ CORS Configuration
 const corsOptions = {
   origin: [
-    "http://localhost:3000", // Development frontend
-    "https://splitter-8fih.onrender.com", // Production frontend
+    "http://localhost:3000",
+    "https://splitter-8fih.onrender.com",
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Make sure OPTIONS is allowed
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-app.use(cors(corsOptions)); // Enable CORS for the specified origins
-
-// Middleware to handle preflight OPTIONS request
+app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// Middleware
-app.use(express.json()); // Parse JSON requests
+// ✅ Middleware
+app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve image uploads
 
-// MongoDB Connection
+// ✅ MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI, {  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret"; // Default JWT secret
+// ✅ JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
 
+// ✅ Multer Configuration for Image Upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = "./uploads";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
 
-// Schemas & Models
+// ✅ Schemas & Models
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  avatar: { type: String, default: "" }, // Optional field for profile images
+  avatar: { type: String, default: "" },
+  dob: { type: String, default: "" },
+  bio: { type: String, default: "" },
+  currency: { type: String, default: "INR" },
 });
+
 const User = mongoose.model("User", userSchema);
 
 const postSchema = new mongoose.Schema({
@@ -51,16 +69,21 @@ const postSchema = new mongoose.Schema({
   content: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
+
 const Post = mongoose.model("Post", postSchema);
 
 const expenseSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   members: [{ type: String, required: true }],
   expenses: [{ type: Number, required: true }],
   total: { type: Number, required: true },
+  currency: { type: String, required: true },
+  date: { type: Date, default: Date.now },
 });
+
 const Expense = mongoose.model("Expense", expenseSchema);
 
-// Middleware to Verify JWT
+// ✅ Middleware to Verify JWT
 const authenticate = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) return res.status(401).json({ error: "Access Denied: No token provided" });
@@ -74,24 +97,45 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// Routes
+// ✅ Routes
 
+// 1. Register User
 // 1. Register User
 app.post("/api/auth/register", async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name || !email || !password)
+
+  if (!name || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
+  }
 
   try {
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
-    res.status(201).json({ message: "User registered successfully", user });
+
+    // Create a new user
+    const newUser = new User({ name, email, password: hashedPassword });
+    await newUser.save();
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
+    });
   } catch (err) {
-    const errorMessage =
-      err.code === 11000 ? "Email already exists" : "Error registering user";
-    res.status(400).json({ error: errorMessage, details: err.message });
+    console.error("Error in Registration:", err);
+    res.status(500).json({ error: "Error registering user", details: err.message });
   }
 });
+
 
 // 2. Login User
 app.post("/api/auth/login", async (req, res) => {
@@ -113,7 +157,35 @@ app.post("/api/auth/login", async (req, res) => {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 });
+// ✅ Save Expense
+app.post("/api/expenses", authenticate, async (req, res) => {
+  const { members, expenses, currency } = req.body;
+  try {
+    const user = await User.findById(req.user._id);
+    const total = expenses.reduce((sum, expense) => sum + expense, 0);
+    const expenseGroup = await Expense.create({
+      user: user._id,
+      members,
+      expenses,
+      total,
+      currency: currency || user.currency,
+    });
+    res.status(201).json(expenseGroup);
+  } catch (err) {
+    res.status(400).json({ error: "Error creating expense", details: err.message });
+  }
+});
 
+// ✅ Update User Currency
+app.put("/api/users/currency", authenticate, async (req, res) => {
+  const { currency } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(req.user._id, { currency }, { new: true });
+    res.json({ message: "Currency updated successfully", currency: user.currency });
+  } catch (err) {
+    res.status(400).json({ error: "Error updating currency", details: err.message });
+  }
+});
 // 3. Get User Profile
 app.get("/api/users/profile", authenticate, async (req, res) => {
   try {
@@ -124,15 +196,26 @@ app.get("/api/users/profile", authenticate, async (req, res) => {
   }
 });
 
-// 4. Update User Profile
-app.put("/api/users/profile", authenticate, async (req, res) => {
-  const { name, avatar } = req.body;
+// 4. Update User Profile with Avatar Upload
+app.put("/api/users/profile", authenticate, upload.single("avatar"), async (req, res) => {
+  const { name, dob, bio } = req.body;
+  const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+
   try {
+    const updateData = {
+      name,
+      dob,
+      bio,
+    };
+
+    if (avatar) updateData.avatar = avatar;
+
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name, avatar },
+      updateData,
       { new: true }
     ).select("-password");
+
     res.json(user);
   } catch (err) {
     res.status(400).json({ error: "Error updating profile", details: err.message });
@@ -177,43 +260,27 @@ app.post("/api/expenses", authenticate, async (req, res) => {
 
   try {
     const total = expenses.reduce((sum, expense) => sum + expense, 0);
-    const expenseGroup = await Expense.create({ members, expenses, total });
+    const expenseGroup = await Expense.create({
+      user: req.user._id,
+      members,
+      expenses,
+      total,
+    });
+
     res.status(201).json(expenseGroup);
   } catch (err) {
     res.status(400).json({ error: "Error creating expense group", details: err.message });
   }
 });
 
-// 8. Get Expense Groups
-app.get("/api/expenses", authenticate, async (req, res) => {
-  try {
-    const expenses = await Expense.find();
-    res.json(expenses);
-  } catch (err) {
-    res.status(500).json({ error: "Error fetching expense groups", details: err.message });
-  }
-});
-
-// 9. Get Travel Places
-app.get("/api/places", (req, res) => {
-  const places = process.env.PLACES || JSON.stringify([
-    { name: "Paris", description: "The city of lights and love." },
-    { name: "New York", description: "The Big Apple." },
-    { name: "Tokyo", description: "A bustling metropolis in Japan." },
-  ]);
-  res.json(JSON.parse(places));
-});
-
+// ✅ Static File Serving (Production)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
-} else {
-  app.get("/", (req, res) => {
-    res.send("Welcome to the API! Use endpoints under /api.");
-  });
 }
 
+// ✅ Server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
